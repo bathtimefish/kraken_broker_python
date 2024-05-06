@@ -1,0 +1,19 @@
+[Unit]
+Description=KrakenBrokerPython
+After=syslog.target network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/kraken_broker.env
+WorkingDirectory=/home/ubuntu/kraken_broker_python
+ExecStart=/usr/bin/python /home/ubuntu/kraken_broker_python/src/main.py
+TimeoutStopSec=5
+KillMode=process
+Restart=always
+User=root
+Group=root
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy = multi-user.target
