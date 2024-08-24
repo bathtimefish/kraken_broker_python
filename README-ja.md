@@ -111,9 +111,6 @@ Brokerの機能は環境変数で設定します。現在以下の環境変数�
 - `KRAKENB_REIDS_USER`
 - `KRAKENB_REDIS_PASSWORD`
 - `KRAKENB_MONGODB_HOST`
-- `KRAKENB_MONGODB_USER`
-- `KRAKENB_MONGODB_PASSWORD`
-- `KRAKENB_MONGODB_DATABASE`
 - `KRAKENB_WEBSOCKET_URL`
 - `KRAKENB_SLACK_URL`
 
@@ -147,15 +144,9 @@ Redisのユーザー名を設定します。
 ### KRAKENB_REDIS_PASSWORD
 Redisのパスワードを設定します。
 ## MongoDB
-[MongoDB adapter]()を利用する場合、`KRAKENB_MONGODB_HOST` `KRAKENB_MONGODB_USER` `KRAKENB_MONGODB_PASSWORD` `KRAKENB_MONGODB_DATABASE` を設定することで利用できます。
+[MongoDB adapter]()を利用する場合、`KRAKENB_MONGODB_HOST`を設定することで利用できます。
 ### KRAKENB_MONGODB_HOST
 MongoDBのホストURLを設定します。
-### KRAKENB_MONGODB_USER
-MongoDBのユーザ名を設定します。
-### KRAKENB_MONGODB_PASSWORD
-MongoDBのパスワードを設定します。
-### KRAKENB_MONGODB_DATABASE
-MongoDBのデータベース名を設定します。
 ## Websocket
 [Websocket adapter](https://github.com/bathtimefish/kraken_broker_python/blob/main/src/adapters/websocket.py)を利用する場合、`KRAKENB_WEBSOCKET_URL`を設定することで利用できます。Websocket adapterはBrokerにWebsocket client機能を提供します。
 ### KRAKENB_WEBSOCKET_URL
