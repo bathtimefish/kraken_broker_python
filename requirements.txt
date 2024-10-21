@@ -1,3 +1,4 @@
+requests == 2.32.3
 protobuf == 5.27.2
 grpcio == 1.63.0
 asyncio == 3.4.3
