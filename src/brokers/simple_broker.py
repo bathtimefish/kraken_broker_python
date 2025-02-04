@@ -1,4 +1,6 @@
 import logging
+import json
+from lib import kraken_pb2
 from lib.broker import Broker
 from adapters.slack import SlackAdapter
 
@@ -8,16 +10,12 @@ class SimpleBroker(Broker):
         self.name = "SimpleBroker"
         self.slack = SlackAdapter()
     
-    async def on(self, kind: str, provider: str, payload: str) -> None:
-        logging.info(
-            "%s.on: kind=%s, provider=%s, payload=%s" %
-            (
-                self.name,
-                kind,
-                provider,
-                payload
-            )
-        )
-        slack_payload_interface = self.slack.get_interface()
-        slack_payload = slack_payload_interface("random", "KrakenBroker", f"kind={kind}, provider={provider}, payload={payload}")
-        self.slack.send(slack_payload)
+    async def on(self, request: kraken_pb2.KrakenRequest, response: kraken_pb2.KrakenResponse) -> None:
+        logging.info(request)
+        logging.info(response)
+        response_content_type = "text/plain"
+        response_meta = {
+            "response_type": "simple"
+        }
+        meta_str = json.dumps(response_meta)
+        return  response(request.collector_name, response_content_type, meta_str, "0")

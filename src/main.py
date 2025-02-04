@@ -7,28 +7,28 @@ from lib.broker import Broker
 from broker_manager import BrokerManager
 from lib.config_manager import ConfigManager
 
-class KrakenMessanger(kraken_pb2_grpc.KrakenMessageServicer):
+class KrakenMessanger(kraken_pb2_grpc.KrakenServiceServicer):
     def __init__(self, brokers: list[Broker]):
         self.brokers = brokers
 
     async def Send(
         self,
-        request: kraken_pb2.KrakenMessageRequest,
+        request: kraken_pb2.KrakenRequest,
         context: grpc.aio.ServicerContext,
-    ) -> kraken_pb2.KrakenMessageResponse:
-        status_code = 1
-        #logging.info(
-        #    "Received: kind=%s, provider=%s, payload=%s" %
-        #    (
-        #        request.kind,
-        #        request.provider,
-        #        request.payload
-        #    )
-        #)
-        loop = asyncio.get_event_loop()
+    ) -> kraken_pb2.KrakenResponse:
+        response = kraken_pb2.KrakenResponse
+        tasks = []
+        response_once = None
         for broker in self.brokers:
-            loop.create_task(broker.on(request.kind, request.provider, request.payload))
-        return kraken_pb2.KrakenMessageResponse(status=status_code)
+            task = asyncio.create_task(broker.on(request, response))
+            tasks.append(task)
+        results = await asyncio.gather(*tasks)
+        logging.debug(results)  # This line is added for debugging
+        for result in results:
+            if result is not None:
+                response_once = result
+        logging.debug(response_once)  # This line is added for debugging
+        return response_once
 
 
 async def serve():
@@ -36,7 +36,7 @@ async def serve():
         config = ConfigManager().get()
         messenger = KrakenMessanger(brokers=BrokerManager().brokers)
         server = grpc.aio.server()
-        kraken_pb2_grpc.add_KrakenMessageServicer_to_server(messenger, server)
+        kraken_pb2_grpc.add_KrakenServiceServicer_to_server(messenger, server)
         # rise the server on port 5051
         grpc_host = config["KRAKENB_GRPC_HOST"] 
         server.add_insecure_port(grpc_host)
