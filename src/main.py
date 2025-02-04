@@ -7,11 +7,11 @@ from lib.broker import Broker
 from broker_manager import BrokerManager
 from lib.config_manager import ConfigManager
 
-class KrakenMessanger(kraken_pb2_grpc.KrakenServiceServicer):
+class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
     def __init__(self, brokers: list[Broker]):
         self.brokers = brokers
 
-    async def Send(
+    async def ProcessKrakenRequest(
         self,
         request: kraken_pb2.KrakenRequest,
         context: grpc.aio.ServicerContext,
@@ -23,20 +23,17 @@ class KrakenMessanger(kraken_pb2_grpc.KrakenServiceServicer):
             task = asyncio.create_task(broker.on(request, response))
             tasks.append(task)
         results = await asyncio.gather(*tasks)
-        logging.debug(results)  # This line is added for debugging
-        for result in results:
-            if result is not None:
-                response_once = result
-        logging.debug(response_once)  # This line is added for debugging
+        response_once = next((result for result in results if result is not None), None)
+        #logging.info(response_once)  # This line is added for debugging
         return response_once
 
 
 async def serve():
     try:
         config = ConfigManager().get()
-        messenger = KrakenMessanger(brokers=BrokerManager().brokers)
+        servicer = KrakenServiceServicer(brokers=BrokerManager().brokers)
         server = grpc.aio.server()
-        kraken_pb2_grpc.add_KrakenServiceServicer_to_server(messenger, server)
+        kraken_pb2_grpc.add_KrakenServiceServicer_to_server(servicer, server)
         # rise the server on port 5051
         grpc_host = config["KRAKENB_GRPC_HOST"] 
         server.add_insecure_port(grpc_host)
