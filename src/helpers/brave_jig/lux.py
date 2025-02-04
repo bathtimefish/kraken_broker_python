@@ -20,19 +20,19 @@ def parse(data: bytes) -> dict:
         sampling_time = struct.unpack("<I", data[23:27])[0]
         sampling_num = struct.unpack("<H", data[27:29])[0]
         lux_1 = struct.unpack("<f", data[29:33])[0]  # 4バイト(Float型)
-        logging.info("Protocol version: %d", protocol_ver)
-        logging.info("Type: %d", type_field)
-        logging.info("Data length: %d", data_length)
-        logging.info("Unix time: %d", unix_time)
-        logging.info("Sensor device ID: %s", sensor_device_id)
-        logging.info("Sensor ID: %s", sensor_id)
-        logging.info("RSSI: %d", rssi)
-        logging.info("Order: %d", order)
-        logging.info("Battery level: %d", battery_level)
-        logging.info("Sampling interval: %d", sampling_interval)
-        logging.info("Sampling time: %d", sampling_time)
-        logging.info("Sampling num: %d", sampling_num)
-        logging.info("Lux: %f", lux_1)
+        #logging.info("Protocol version: %d", protocol_ver)
+        #logging.info("Type: %d", type_field)
+        #logging.info("Data length: %d", data_length)
+        #logging.info("Unix time: %d", unix_time)
+        #logging.info("Sensor device ID: %s", sensor_device_id)
+        #logging.info("Sensor ID: %s", sensor_id)
+        #logging.info("RSSI: %d", rssi)
+        #logging.info("Order: %d", order)
+        #logging.info("Battery level: %d", battery_level)
+        #logging.info("Sampling interval: %d", sampling_interval)
+        #logging.info("Sampling time: %d", sampling_time)
+        #logging.info("Sampling num: %d", sampling_num)
+        #logging.info("Lux: %f", lux_1)
         return {
             "protocol_ver": protocol_ver,
             "type": type_field,

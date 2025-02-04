@@ -13,7 +13,7 @@ class SimpleBroker(Broker):
         self.name = "SimpleBroker"
         self.slack = SlackAdapter()
     
-    async def on(self, request: kraken_pb2.KrakenRequest, response: kraken_pb2.KrakenResponse) -> None:
+    async def on(self, request: kraken_pb2.KrakenRequest, response: kraken_pb2.KrakenResponse) -> kraken_pb2.KrakenResponse|None:
         logger.debug("=== SimpleBroker: Processing request ===")
         logger.debug(request)
         response_content_type = "text/plain"

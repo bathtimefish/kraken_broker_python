@@ -18,25 +18,25 @@ def parse_sensor_data(data: bytes) -> dict:
     Dispatch data to the correct handler
     """
     sensor_id = get_sensor_id(data)
-    logging.info("Brave Jig: Sensor ID: %s" % sensor_id)
+    logging.debug("Brave Jig: Sensor ID: %s" % sensor_id)
     if sensor_id == "0121":   # lux sensor
-        logging.info("Brave Jig: Found lux sensor")
+        logging.debug("Brave Jig: Found lux sensor")
         return lux.parse(data)
     else:
         logging.error("Brave Jig: Unknown sensor")
 
-def parse(hex_str: str) -> dict:
+#def parse(hex_str: str) -> dict:
+def parse(data: bytes) -> dict:
     """
     Parse data from Brave Jig
     """
     result = {}
     try:
-        data = bytes.fromhex(hex_str)
-        logging.info(data)
+        #logging.info(data)
         if data[1] == 0x00:
             result = parse_sensor_data(data)
         elif data[1] == 0xFF:
-            logging.info("Brave Jig: Found error data")
+            logging.debug("Brave Jig: Found error data")
         else:
             logging.error("Brave Jig: Unknown data")
         return result
