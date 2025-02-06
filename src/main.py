@@ -7,6 +7,9 @@ from lib.broker import Broker
 from broker_manager import BrokerManager
 from lib.config_manager import ConfigManager
 
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
     def __init__(self, brokers: list[Broker]):
         self.brokers = brokers
@@ -27,7 +30,6 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
         #logging.info(response_once)  # This line is added for debugging
         return response_once
 
-
 async def serve():
     try:
         config = ConfigManager().get()
@@ -37,16 +39,15 @@ async def serve():
         # rise the server on port 5051
         grpc_host = config["KRAKENB_GRPC_HOST"] 
         server.add_insecure_port(grpc_host)
-        logging.info('KRAKEN BROKER - Highlevel IoT data router was started.')
-        logging.info("gRPC server was started on `%s`" % grpc_host)
+        logger.info('KRAKEN BROKER - Highlevel IoT data router was started.')
+        logger.info("gRPC server was started on `%s`" % grpc_host)
         if (int(config["KRAKENB_DEBUG"]) > 0):
-            logging.info("KRAKEN BROKER is running as debug mode.")
+            logger.info("KRAKEN BROKER is running as debug mode.")
         await server.start()
         await server.wait_for_termination()
     except Exception as e:
-        logging.error(e)
+        logger.error(e)
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
     asyncio.run(serve())
