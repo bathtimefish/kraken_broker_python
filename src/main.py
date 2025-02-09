@@ -18,23 +18,33 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
         self,
         request: kraken_pb2.KrakenRequest,
         context: grpc.aio.ServicerContext,
-    ) -> kraken_pb2.KrakenResponse:
+    ) -> kraken_pb2.KrakenResponse|None:
         response = kraken_pb2.KrakenResponse
         tasks = []
         response_once = None
         for broker in self.brokers:
             task = asyncio.create_task(broker.on(request, response))
             tasks.append(task)
-        results = await asyncio.gather(*tasks)
-        response_once = next((result for result in results if result is not None), None)
+        #results = await asyncio.gather(*tasks)
+        #response_once = next((result for result in results if result is not None), None)
         #logging.info(response_once)  # This line is added for debugging
-        return response_once
+        #return response_once
+        results = await asyncio.wait_for(asyncio.gather(*tasks), timeout=30.0)
+        return next((result for result in results if result is not None), None)
 
 async def serve():
     try:
         config = ConfigManager().get()
         servicer = KrakenServiceServicer(brokers=BrokerManager().brokers)
-        server = grpc.aio.server()
+        # grpc server options
+        server_options = [
+            ('grpc.max_concurrent_streams', 1000),
+            ('grpc.max_connection_idle_ms', 30000),  # 30sec
+            ('grpc.max_connection_age_ms', 300000),  # 5min
+            ('grpc.keepalive_time_ms', 60000),      # 1min
+            ('grpc.keepalive_timeout_ms', 20000)    # 20sec
+        ]
+        server = grpc.aio.server(options=server_options, maximum_concurrent_rpcs=1000) 
         kraken_pb2_grpc.add_KrakenServiceServicer_to_server(servicer, server)
         # rise the server on port 5051
         grpc_host = config["KRAKENB_GRPC_HOST"] 
