@@ -21,14 +21,9 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
     ) -> kraken_pb2.KrakenResponse|None:
         response = kraken_pb2.KrakenResponse
         tasks = []
-        #response_once = None
         for broker in self.brokers:
             task = asyncio.create_task(broker.on(request, response))
             tasks.append(task)
-        #results = await asyncio.gather(*tasks)
-        #response_once = next((result for result in results if result is not None), None)
-        #logging.info(response_once)  # This line is added for debugging
-        #return response_once
         try:
             results = await asyncio.wait_for(asyncio.gather(*tasks), timeout=30.0)
         except Exception as e:
@@ -36,9 +31,17 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
             context.abort(grpc.StatusCode.INTERNAL, f"Error processing request: {e}")
     
         # 有効なレスポンスが得られなかった場合も中断する
-        valid_response = next((result for result in results if result is not None), None)
-        if valid_response is None:
-            context.abort(grpc.StatusCode.INTERNAL, "No valid response from broker.on")
+        #valid_response = next((result for result in results if result is not None), None)
+        #if valid_response is None:
+        #    context.abort(grpc.StatusCode.INTERNAL, "No valid response from broker.on")
+
+        # !!! Debug: 即時最初のレスポンスを返す File descriptor limit reached 対策試験 !!! 
+        valid_response =  response(
+            collector_name=request.collector_name,
+            content_type="text/plain",
+            metadata="{\"response_type\": \"simple\"}",
+            payload=bytes([0x01])
+        )
     
         return valid_response
 

@@ -22,10 +22,13 @@ class BraveJigBroker(Broker):
             "response_type": "simple"
         }
         meta_str = json.dumps(response_meta)
-        kraken_response =  response(
-            collector_name=request.collector_name,
-            content_type=response_content_type,
-            metadata=meta_str,
-            payload=bytes([0x00])
-        )
-        return kraken_response
+
+        # !!! Debug: 即時最初のレスポンスを返す File descriptor limit reached 対策試験 !!! 
+        #kraken_response =  response(
+        #    collector_name=request.collector_name,
+        #    content_type=response_content_type,
+        #    metadata=meta_str,
+        #    payload=bytes([0x00])
+        #)
+        #return kraken_response
+        return None 
