@@ -21,7 +21,7 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
     ) -> kraken_pb2.KrakenResponse|None:
         response = kraken_pb2.KrakenResponse
         tasks = []
-        response_once = None
+        #response_once = None
         for broker in self.brokers:
             task = asyncio.create_task(broker.on(request, response))
             tasks.append(task)
@@ -29,8 +29,18 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
         #response_once = next((result for result in results if result is not None), None)
         #logging.info(response_once)  # This line is added for debugging
         #return response_once
-        results = await asyncio.wait_for(asyncio.gather(*tasks), timeout=30.0)
-        return next((result for result in results if result is not None), None)
+        try:
+            results = await asyncio.wait_for(asyncio.gather(*tasks), timeout=30.0)
+        except Exception as e:
+            # タイムアウトや他の例外が発生した場合、RPCを中断する
+            context.abort(grpc.StatusCode.INTERNAL, f"Error processing request: {e}")
+    
+        # 有効なレスポンスが得られなかった場合も中断する
+        valid_response = next((result for result in results if result is not None), None)
+        if valid_response is None:
+            context.abort(grpc.StatusCode.INTERNAL, "No valid response from broker.on")
+    
+        return valid_response
 
 async def serve():
     try:
