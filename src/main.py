@@ -6,9 +6,24 @@ from lib import kraken_pb2_grpc
 from lib.broker import Broker
 from broker_manager import BrokerManager
 from lib.config_manager import ConfigManager
+from grpc.aio import ServerInterceptor
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+active_rpc_count = 0
+
+class CountingInterceptor(ServerInterceptor):
+    async def intercept_service(self, continuation, handler_call_details):
+        global active_rpc_count
+        active_rpc_count += 1
+        logger.debug(f"RPC Started: Active RPC = {active_rpc_count}")
+        try:
+            response = await continuation(handler_call_details)
+            return response
+        finally:
+            active_rpc_count -= 1
+            logger.debug(f"RPC Finished: Active RPC = {active_rpc_count}")
 
 class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
     def __init__(self, brokers: list[Broker]):
@@ -27,21 +42,11 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
         try:
             results = await asyncio.wait_for(asyncio.gather(*tasks), timeout=30.0)
         except Exception as e:
-            # タイムアウトや他の例外が発生した場合、RPCを中断する
             context.abort(grpc.StatusCode.INTERNAL, f"Error processing request: {e}")
     
-        # 有効なレスポンスが得られなかった場合も中断する
-        #valid_response = next((result for result in results if result is not None), None)
-        #if valid_response is None:
-        #    context.abort(grpc.StatusCode.INTERNAL, "No valid response from broker.on")
-
-        # !!! Debug: 即時最初のレスポンスを返す File descriptor limit reached 対策試験 !!! 
-        valid_response =  response(
-            collector_name=request.collector_name,
-            content_type="text/plain",
-            metadata="{\"response_type\": \"simple\"}",
-            payload=bytes([0x01])
-        )
+        valid_response = next((result for result in results if result is not None), None)
+        if valid_response is None:
+            context.abort(grpc.StatusCode.INTERNAL, "No valid response from broker.on")
     
         return valid_response
 
@@ -57,7 +62,7 @@ async def serve():
             ('grpc.keepalive_time_ms', 60000),      # 1min
             ('grpc.keepalive_timeout_ms', 20000)    # 20sec
         ]
-        server = grpc.aio.server(options=server_options, maximum_concurrent_rpcs=1000) 
+        server = grpc.aio.server(options=server_options, maximum_concurrent_rpcs=1000, interceptors=[CountingInterceptor()]) 
         kraken_pb2_grpc.add_KrakenServiceServicer_to_server(servicer, server)
         # rise the server on port 5051
         grpc_host = config["KRAKENB_GRPC_HOST"] 
