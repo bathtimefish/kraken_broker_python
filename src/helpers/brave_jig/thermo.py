@@ -20,8 +20,8 @@ def parse(data: bytes) -> dict:
         sampling_time = struct.unpack("<I", data[23:27])[0]
         sampling_num = struct.unpack("<H", data[27:29])[0]
         logging.info(data.hex())
-        temp_hum = struct.unpack("<d", data[29:36])[0]  # 8byte(Float)
-        logging.info("Temp Hum: %d", temp_hum)
+        temp = struct.unpack("<f", data[29:33])[0]  # 4byte(Float)
+        hum = struct.unpack("<f", data[33:37])[0]  # 4byte(Float)
 
         #logging.info("Protocol version: %d", protocol_ver)
         #logging.info("Type: %d", type_field)
@@ -36,6 +36,8 @@ def parse(data: bytes) -> dict:
         #logging.info("Sampling time: %d", sampling_time)
         #logging.info("Sampling num: %d", sampling_num)
         #logging.info("Lux: %f", lux_1)
+        logging.info("Temp Hum: %d", temp)
+        logging.info("Hum: %d", hum)
         return {
             "protocol_ver": protocol_ver,
             "type": type_field,
@@ -49,7 +51,8 @@ def parse(data: bytes) -> dict:
             "sampling_interval": sampling_interval,
             "sampling_time": sampling_time,
             "sampling_num": sampling_num,
-            "lux_1": lux_1
+            "temp": temp,
+            "hum": hum
         }
     else:
         logging.error("No dataponse received within timeout period.")
