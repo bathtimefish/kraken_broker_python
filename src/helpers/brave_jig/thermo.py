@@ -19,7 +19,8 @@ def parse(data: bytes) -> dict:
         sampling_interval = struct.unpack("B", data[22:23])[0]
         sampling_time = struct.unpack("<I", data[23:27])[0]
         sampling_num = struct.unpack("<H", data[27:29])[0]
-        temp_hum = struct.unpack("<f", data[29:37])[0]  # 8byte(Float)
+        logging.info(data.hex())
+        temp_hum = struct.unpack("<d", data[29:36])[0]  # 8byte(Float)
         logging.info("Temp Hum: %d", temp_hum)
 
         #logging.info("Protocol version: %d", protocol_ver)
