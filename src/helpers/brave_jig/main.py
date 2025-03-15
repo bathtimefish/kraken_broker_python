@@ -22,6 +22,9 @@ def parse_sensor_data(data: bytes) -> dict:
     if sensor_id == "0121":   # lux sensor
         logging.debug("Brave Jig: Found lux sensor")
         return lux.parse(data)
+    if sensor_id == "0123":   # thermo sensor
+        logging.debug("Brave Jig: Found thermo sensor")
+
     else:
         logging.error("Brave Jig: Unknown sensor")
 
