@@ -20,7 +20,7 @@ def parse(data: bytes) -> dict:
         sampling_time = struct.unpack("<I", data[23:27])[0]
         sampling_num = struct.unpack("<H", data[27:29])[0]
         logging.info(data.hex())
-        distance = struct.unpack("<H", data[29:31])[0]  # 2byte(unsigned short)
+        pressure = struct.unpack("<f", data[29:33])[0]  # 4byte(float)
 
         #logging.info("Protocol version: %d", protocol_ver)
         #logging.info("Type: %d", type_field)
@@ -34,7 +34,7 @@ def parse(data: bytes) -> dict:
         #logging.info("Sampling interval: %d", sampling_interval)
         #logging.info("Sampling time: %d", sampling_time)
         #logging.info("Sampling num: %d", sampling_num)
-        #logging.info("Distance: %d", distance)
+        #logging.info("Pressure: %f", pressure)
         return {
             "protocol_ver": protocol_ver,
             "type": type_field,
@@ -48,7 +48,7 @@ def parse(data: bytes) -> dict:
             "sampling_interval": sampling_interval,
             "sampling_time": sampling_time,
             "sampling_num": sampling_num,
-            "distance": distance
+            "pressure": pressure
         }
     else:
         logging.error("No dataponse received within timeout period.")
