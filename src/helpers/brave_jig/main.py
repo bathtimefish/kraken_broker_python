@@ -4,8 +4,10 @@ Broker helper for Brave Jig
 
 import logging
 import helpers.brave_jig.lux as lux
-import helpers.brave_jig.thermo as thermo
 import helpers.brave_jig.accel as accel
+import helpers.brave_jig.thermo as thermo
+import helpers.brave_jig.distance_measure as distance_measure
+
 
 def get_sensor_id(data: bytes) -> str:
     """
@@ -30,6 +32,9 @@ def parse_sensor_data(data: bytes) -> dict:
     elif sensor_id == "0123":   # thermo sensor
         logging.debug("Brave Jig: Found thermo sensor")
         return thermo.parse(data)
+    elif sensor_id == "0125":   # distance measuring sensor
+        logging.debug("Brave Jig: Found distance measuring sensor")
+        return distance_measure.parse(data) 
     else:
         logging.error("Brave Jig: Unknown sensor")
 
