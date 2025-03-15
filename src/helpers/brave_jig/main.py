@@ -5,6 +5,7 @@ Broker helper for Brave Jig
 import logging
 import helpers.brave_jig.lux as lux
 import helpers.brave_jig.thermo as thermo
+import helpers.brave_jig.accel as accel
 
 def get_sensor_id(data: bytes) -> str:
     """
@@ -25,6 +26,7 @@ def parse_sensor_data(data: bytes) -> dict:
         return lux.parse(data)
     elif sensor_id == "0122":   # accel sensor
         logging.debug("Brave Jig: Found accel sensor")
+        return accel.parse(data)
     elif sensor_id == "0123":   # thermo sensor
         logging.debug("Brave Jig: Found thermo sensor")
         return thermo.parse(data)

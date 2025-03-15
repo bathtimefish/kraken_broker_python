@@ -20,8 +20,9 @@ def parse(data: bytes) -> dict:
         sampling_time = struct.unpack("<I", data[23:27])[0]
         sampling_num = struct.unpack("<H", data[27:29])[0]
         logging.info(data.hex())
-        temp = struct.unpack("<f", data[29:33])[0]  # 4byte(Float)
-        hum = struct.unpack("<f", data[33:37])[0]  # 4byte(Float)
+        accel_x = struct.unpack("<f", data[29:33])[0]  # 4byte(Float)
+        accel_y = struct.unpack("<f", data[33:37])[0]  # 4byte(Float)
+        accel_z = struct.unpack("<f", data[37:41])[0]  # 4byte(Float)
 
         #logging.info("Protocol version: %d", protocol_ver)
         #logging.info("Type: %d", type_field)
@@ -35,8 +36,9 @@ def parse(data: bytes) -> dict:
         #logging.info("Sampling interval: %d", sampling_interval)
         #logging.info("Sampling time: %d", sampling_time)
         #logging.info("Sampling num: %d", sampling_num)
-        #logging.info("Temp Hum: %d", temp)
-        #logging.info("Hum: %d", hum)
+        #logging.info("Accel X: %d", accel_x)
+        #logging.info("Accel Y: %d", accel_y)
+        #logging.info("Accel Z: %d", accel_z)
         return {
             "protocol_ver": protocol_ver,
             "type": type_field,
@@ -50,8 +52,9 @@ def parse(data: bytes) -> dict:
             "sampling_interval": sampling_interval,
             "sampling_time": sampling_time,
             "sampling_num": sampling_num,
-            "temp": temp,
-            "hum": hum
+            "accel_x": accel_x,
+            "accel_y": accel_y,
+            "accel_z": accel_z
         }
     else:
         logging.error("No dataponse received within timeout period.")
