@@ -4,7 +4,7 @@ Data Collection/Broker Application for IoT
 ![logo](./assets/kraken-logo-300.png)
 
 # Introduction
-Kraken Collector was developed as a data collection application for IoT. It can be used in combination with [Kraken Broker](https://github.com/bathtimefish/kraken_broker_python/).
+Kraken Collector was developed as a data collection application for IoT. It can be used in combination with [Kraken Collector](https://github.com/bathtimefish/kraken_collector/).
 
 Using Kraken Collector/Broker, you can receive data sent from edge IoT sensors via HTTP or MQTT in cloud or on-premise environments. This setup enables data-driven processing, such as data transformation, database storage, and user notifications, tailored to specific business needs.
 
