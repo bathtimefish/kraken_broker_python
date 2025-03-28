@@ -4,18 +4,26 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class KrakenMessageRequest(_message.Message):
-    __slots__ = ("kind", "provider", "payload")
-    KIND_FIELD_NUMBER: _ClassVar[int]
-    PROVIDER_FIELD_NUMBER: _ClassVar[int]
+class KrakenRequest(_message.Message):
+    __slots__ = ["collector_name", "content_type", "metadata", "payload"]
+    COLLECTOR_NAME_FIELD_NUMBER: _ClassVar[int]
+    CONTENT_TYPE_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
     PAYLOAD_FIELD_NUMBER: _ClassVar[int]
-    kind: str
-    provider: str
-    payload: str
-    def __init__(self, kind: _Optional[str] = ..., provider: _Optional[str] = ..., payload: _Optional[str] = ...) -> None: ...
+    collector_name: str
+    content_type: str
+    metadata: str
+    payload: bytes
+    def __init__(self, collector_name: _Optional[str] = ..., content_type: _Optional[str] = ..., metadata: _Optional[str] = ..., payload: _Optional[bytes] = ...) -> None: ...
 
-class KrakenMessageResponse(_message.Message):
-    __slots__ = ("status",)
-    STATUS_FIELD_NUMBER: _ClassVar[int]
-    status: int
-    def __init__(self, status: _Optional[int] = ...) -> None: ...
+class KrakenResponse(_message.Message):
+    __slots__ = ["collector_name", "content_type", "metadata", "payload"]
+    COLLECTOR_NAME_FIELD_NUMBER: _ClassVar[int]
+    CONTENT_TYPE_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    PAYLOAD_FIELD_NUMBER: _ClassVar[int]
+    collector_name: str
+    content_type: str
+    metadata: str
+    payload: bytes
+    def __init__(self, collector_name: _Optional[str] = ..., content_type: _Optional[str] = ..., metadata: _Optional[str] = ..., payload: _Optional[bytes] = ...) -> None: ...

@@ -2,6 +2,6 @@ requests == 2.32.3
 protobuf == 5.27.2
 grpcio == 1.63.0
 asyncio == 3.4.3
-influxdb-client == 1.42.0
 redis == 5.0.4
 websockets == 11.0.3
+influxdb3-python
