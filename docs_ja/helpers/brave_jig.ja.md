@@ -59,7 +59,7 @@ sudo chown pi:pi /dev/ttyACM0
 
 ## BraveJIG USBルーターを開始状態にする
 
-初期状態のBraveJIG USBルーターは停止状態（センサーモジュールからデータを受信しない状態）となっています。USBルーターを開始状態にしてモジュールからデータをする状態にします。USBルーターの設定方法は(USBルーターのソフトウェア仕様書)[https://jig.braveridge.com/support/developerdocumentation]を参照ください
+初期状態のBraveJIG USBルーターは停止状態（センサーモジュールからデータを受信しない状態）となっています。USBルーターを開始状態にしてモジュールからデータをする状態にします。USBルーターの設定方法は[USBルーターのソフトウェア仕様書](https://jig.braveridge.com/support/developerdocumentation)を参照ください
 
 USBルーターが開始状態になると、ルーターが受信するセンサーデータをUSBシリアル接続で受信できます
 
