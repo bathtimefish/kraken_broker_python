@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import asyncio
 import logging
-import grpc
+from collections.abc import Sequence
+from typing import cast
+
+import grpc  # type: ignore
+from grpc.aio import ServerInterceptor  # type: ignore
+
+from broker_manager import BrokerManager
 from lib import kraken_pb2
 from lib import kraken_pb2_grpc
 from lib.broker import Broker
-from broker_manager import BrokerManager
 from lib.config_manager import ConfigManager
-from grpc.aio import ServerInterceptor
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -26,27 +32,50 @@ class CountingInterceptor(ServerInterceptor):
             logger.debug(f"RPC Finished: Active RPC = {active_rpc_count}")
 
 class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
-    def __init__(self, brokers: list[Broker]):
+    def __init__(self, brokers: Sequence[Broker]):
         self.brokers = brokers
 
     async def ProcessKrakenRequest(
         self,
         request: kraken_pb2.KrakenRequest,
         context: grpc.aio.ServicerContext,
-    ) -> kraken_pb2.KrakenResponse|None:
-        response = kraken_pb2.KrakenResponse
-        tasks = []
-        for broker in self.brokers:
-            task = asyncio.create_task(broker.on(request, response))
-            tasks.append(task)
+    ) -> kraken_pb2.KrakenResponse:
+        response = kraken_pb2.KrakenResponse()
+        tasks = [asyncio.create_task(broker.on(request, response)) for broker in self.brokers]
+        results: list[kraken_pb2.KrakenResponse | None] = []
         try:
-            results = await asyncio.wait_for(asyncio.gather(*tasks), timeout=30.0)
-        except Exception as e:
-            context.abort(grpc.StatusCode.INTERNAL, f"Error processing request: {e}")
-    
+            gathered: list[kraken_pb2.KrakenResponse | None | BaseException] = await asyncio.wait_for(
+                asyncio.gather(*tasks, return_exceptions=True),
+                timeout=30.0,
+            )
+            # Filter out exceptions while logging them; abort if any broker fails
+            for broker, result in zip(self.brokers, gathered):
+                if isinstance(result, Exception):
+                    logger.error("Broker %s failed to handle request", broker.__class__.__name__, exc_info=result)
+                    await context.abort(grpc.StatusCode.INTERNAL, f"Broker error: {result}")
+                    raise RuntimeError("context.abort returned unexpectedly")
+            filtered = [result for result in gathered if not isinstance(result, Exception)]
+            results = cast(list[kraken_pb2.KrakenResponse | None], filtered)
+        except asyncio.TimeoutError:
+            for task in tasks:
+                task.cancel()
+            await context.abort(grpc.StatusCode.DEADLINE_EXCEEDED, "Broker processing timed out")
+            raise RuntimeError("context.abort returned unexpectedly")
+        except Exception as e:  # pragma: no cover - defensive logging
+            for task in tasks:
+                task.cancel()
+            await context.abort(grpc.StatusCode.INTERNAL, f"Error processing request: {e}")
+            raise RuntimeError("context.abort returned unexpectedly")
+        finally:
+            for task in tasks:
+                if task.done():
+                    continue
+                task.cancel()
+
         valid_response = next((result for result in results if result is not None), None)
         if valid_response is None:
-            context.abort(grpc.StatusCode.INTERNAL, "No valid response from broker.on")
+            await context.abort(grpc.StatusCode.INTERNAL, "No valid response from broker.on")
+            raise RuntimeError("context.abort returned unexpectedly")
     
         return valid_response
 
