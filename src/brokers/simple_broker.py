@@ -45,8 +45,9 @@ class SimpleBroker(Broker):
 
         response_payload = bytes([0x00])
         response_meta = self._build_response_metadata(metadata)
-        kraken_response = self._build_response(
+        kraken_response = self.build_response_message(
             collector_name=request.collector_name,
+            content_type=self.RESPONSE_CONTENT_TYPE,
             metadata=response_meta,
             payload=response_payload,
         )
@@ -69,17 +70,3 @@ class SimpleBroker(Broker):
         combined_meta.update({k: v for k, v in request_metadata.items() if k.startswith("x-")})
         return json.dumps(combined_meta)
 
-    @classmethod
-    def _build_response(
-        cls,
-        *,
-        collector_name: str,
-        metadata: str,
-        payload: bytes,
-    ) -> kraken_pb2.KrakenResponse:
-        return kraken_pb2.KrakenResponse(
-            collector_name=collector_name,
-            content_type=cls.RESPONSE_CONTENT_TYPE,
-            metadata=metadata,
-            payload=payload,
-        )

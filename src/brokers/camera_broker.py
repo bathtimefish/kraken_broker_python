@@ -11,7 +11,7 @@ from PIL import Image  # type: ignore
 
 from lib import kraken_pb2
 from lib.broker import Broker
-from adapters.slack import SlackAdapter
+# from adapters.slack import SlackAdapter
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class CameraBroker(Broker):
 
     def __init__(self) -> None:
         self.name = "CameraBroker"
-        self.slack = SlackAdapter()
+    # self.slack = SlackAdapter()
 
     async def on(
         self,
@@ -50,9 +50,11 @@ class CameraBroker(Broker):
             return None
 
         response_meta = self._build_response_metadata(saved_path)
-        kraken_response = self._build_response(
+        kraken_response = self.build_response_message(
             collector_name=request.collector_name,
+            content_type=self.RESPONSE_CONTENT_TYPE,
             metadata=response_meta,
+            payload=bytes([0x00]),
         )
 
         logger.debug(
@@ -148,16 +150,3 @@ class CameraBroker(Broker):
             }
         )
 
-    @classmethod
-    def _build_response(
-        cls,
-        *,
-        collector_name: str,
-        metadata: str,
-    ) -> kraken_pb2.KrakenResponse:
-        return kraken_pb2.KrakenResponse(
-            collector_name=collector_name,
-            content_type=cls.RESPONSE_CONTENT_TYPE,
-            metadata=metadata,
-            payload=bytes([0x00]),
-        )
