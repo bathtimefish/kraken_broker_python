@@ -50,9 +50,11 @@ class CameraBroker(Broker):
             return None
 
         response_meta = self._build_response_metadata(saved_path)
-        kraken_response = self._build_response(
+        kraken_response = self.build_response_message(
             collector_name=request.collector_name,
+            content_type=self.RESPONSE_CONTENT_TYPE,
             metadata=response_meta,
+            payload=bytes([0x00]),
         )
 
         logger.debug(
@@ -148,16 +150,3 @@ class CameraBroker(Broker):
             }
         )
 
-    @classmethod
-    def _build_response(
-        cls,
-        *,
-        collector_name: str,
-        metadata: str,
-    ) -> kraken_pb2.KrakenResponse:
-        return kraken_pb2.KrakenResponse(
-            collector_name=collector_name,
-            content_type=cls.RESPONSE_CONTENT_TYPE,
-            metadata=metadata,
-            payload=bytes([0x00]),
-        )
