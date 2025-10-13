@@ -59,8 +59,10 @@ async def serve():
             ('grpc.max_concurrent_streams', 1000),
             ('grpc.max_connection_idle_ms', 30000),  # 30sec
             ('grpc.max_connection_age_ms', 300000),  # 5min
-            ('grpc.keepalive_time_ms', 60000),      # 1min
-            ('grpc.keepalive_timeout_ms', 20000)    # 20sec
+            ('grpc.keepalive_time_ms', 60000),       # 1min
+            ('grpc.keepalive_timeout_ms', 20000),    # 20sec
+            ('grpc.max_receive_message_length', 16 * 1024 * 1024),  # 16MB
+            ('grpc.max_send_message_length', 16 * 1024 * 1024),     # 16MB
         ]
         server = grpc.aio.server(options=server_options, maximum_concurrent_rpcs=1000, interceptors=[CountingInterceptor()]) 
         kraken_pb2_grpc.add_KrakenServiceServicer_to_server(servicer, server)
