@@ -15,7 +15,9 @@ class SimpleBroker(Broker):
     
     async def on(self, request: kraken_pb2.KrakenRequest, response: kraken_pb2.KrakenResponse) -> kraken_pb2.KrakenResponse|None:
         logger.debug("=== SimpleBroker: Processing request ===")
-        logger.debug(request)
+        logger.debug(request.collector_name)
+        logger.debug(request.metadata)
+        logger.debug(request.payload)
         response_content_type = "text/plain"
         response_meta = {
             "response_type": "simple"
