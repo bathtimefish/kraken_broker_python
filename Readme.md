@@ -154,10 +154,5 @@ The [Websocket adapter](https://github.com/bathtimefish/kraken_broker_python/blo
 ### KRAKENB_WEBSOCKET_URL
 Set the Websocket Server URL.
 
-## Slack
-The [Slack adapter](https://github.com/bathtimefish/kraken_broker_python/blob/main/src/adapters/slack.py) can be used by setting `KRAKENB_SLACK_URL`. The Slack adapter provides Slack incoming webhooks client functionality to the Broker.
-### KRAKENB_SLACK_URL
-Set the Slack incoming webhooks URL.
-
 # Customizing Broker
 WIP
