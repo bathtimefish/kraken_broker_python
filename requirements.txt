@@ -1,7 +1,11 @@
-requests == 2.32.3
-protobuf == 5.27.2
-grpcio == 1.63.0
-asyncio == 3.4.3
-redis == 5.0.4
-websockets == 11.0.3
+requests == 2.32.5
+protobuf == 6.33.2
+grpcio == 1.76.0
+asyncio == 4.0.0
+redis == 7.1.0
+websockets == 15.0.1
 influxdb3-python
+boto3 == 1.42.13
+python-dotenv == 1.2.1
+openai == 2.14.0
+slack_sdk == 3.39.0

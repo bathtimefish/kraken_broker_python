@@ -151,9 +151,5 @@ MongoDBのホストURLを設定します。
 [Websocket adapter](https://github.com/bathtimefish/kraken_broker_python/blob/main/src/adapters/websocket.py)を利用する場合、`KRAKENB_WEBSOCKET_URL`を設定することで利用できます。Websocket adapterはBrokerにWebsocket client機能を提供します。
 ### KRAKENB_WEBSOCKET_URL
 Websocket ServerのURLを設定します。
-## Slack
-[Slack adapter](https://github.com/bathtimefish/kraken_broker_python/blob/main/src/adapters/slack.py)を利用する場合、`KRAKENB_SLACK_URL`を設定することで利用できます。Slack adapterはBrokerにSlack incomming webooks client機能を提供します。
-### KRAKENB_SLACK_URL
-Slack incomming webhooksのURLを設定します。
 
 # Customising Broker
