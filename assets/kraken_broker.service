@@ -5,13 +5,13 @@ After=syslog.target network.target
 [Service]
 Type=simple
 EnvironmentFile=/etc/default/kraken_broker.env
-WorkingDirectory=/home/ubuntu/kraken_broker_python
-ExecStart=/usr/bin/python /home/ubuntu/kraken_broker_python/src/main.py
+WorkingDirectory=/home/pi/kraken_broker_python
+ExecStart=/usr/bin/python /home/pi/kraken_broker_python/src/main.py
 TimeoutStopSec=5
 KillMode=process
 Restart=always
-User=root
-Group=root
+User=pi
+Group=pi
 StandardOutput=journal
 StandardError=journal
 
