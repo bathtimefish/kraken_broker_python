@@ -62,10 +62,10 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
             await context.abort(grpc.StatusCode.DEADLINE_EXCEEDED, "Broker processing timed out")
             raise RuntimeError("context.abort returned unexpectedly")
         except Exception as e:  # pragma: no cover - defensive logging
+            logger.error("Unexpected error in ProcessKrakenRequest", exc_info=e)
             for task in tasks:
                 task.cancel()
-            await context.abort(grpc.StatusCode.INTERNAL, f"Error processing request: {e}")
-            raise RuntimeError("context.abort returned unexpectedly")
+            results = []
         finally:
             for task in tasks:
                 if task.done():
