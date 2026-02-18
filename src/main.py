@@ -48,12 +48,10 @@ class KrakenServiceServicer(kraken_pb2_grpc.KrakenServiceServicer):
                 asyncio.gather(*tasks, return_exceptions=True),
                 timeout=30.0,
             )
-            # Filter out exceptions while logging them; abort if any broker fails
+            # Filter out exceptions while logging them
             for broker, result in zip(self.brokers, gathered):
                 if isinstance(result, Exception):
                     logger.error("Broker %s failed to handle request", broker.__class__.__name__, exc_info=result)
-                    await context.abort(grpc.StatusCode.INTERNAL, f"Broker error: {result}")
-                    raise RuntimeError("context.abort returned unexpectedly")
             filtered = [result for result in gathered if not isinstance(result, Exception)]
             results = cast(list[kraken_pb2.KrakenResponse | None], filtered)
         except asyncio.TimeoutError:
