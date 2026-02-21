@@ -31,6 +31,7 @@ class SimpleBroker(Broker):
             len(request.payload),
             request.metadata,
         )
+        logger.debug(request.payload)
 
         metadata: dict[str, Any]
         try:
@@ -43,8 +44,18 @@ class SimpleBroker(Broker):
             logger.warning("Collector name missing; skipping response")
             return None
 
-        response_payload = bytes([0x00])
-        response_meta = self._build_response_metadata(metadata)
+        # Check if this is a bjig collector request with data
+        bjig_meta = metadata.get("bjig")
+        if request.collector_name == "bjig" and bjig_meta == "data":
+            # Return a test action command for bjig
+            test_action = {"action": "test", "command": "status"}
+            response_payload = json.dumps(test_action).encode('utf-8')
+            response_meta = self._build_response_metadata(metadata)
+            logger.info("Sending bjig test action command: %s", test_action)
+        else:
+            response_payload = bytes([0x00])
+            response_meta = self._build_response_metadata(metadata)
+
         kraken_response = self.build_response_message(
             collector_name=request.collector_name,
             content_type=self.RESPONSE_CONTENT_TYPE,
@@ -61,9 +72,17 @@ class SimpleBroker(Broker):
         return kraken_response
 
     @classmethod
-    def _build_response_metadata(cls, request_metadata: dict[str, Any]) -> str:
+    def _build_response_metadata(cls, request_metadata: dict[str, Any], response_type: Optional[str] = None) -> str:
+        if response_type is None:
+            # Check if this is a bjig collector request
+            bjig_meta = request_metadata.get("bjig")
+            if bjig_meta == "data":
+                response_type = "bjig"
+            else:
+                response_type = "simple"
+
         combined_meta = {
-            "response_type": "simple",
+            "response_type": response_type,
             "source_broker": cls.__name__,
         }
         # Include passthrough metadata keys if needed in the future
