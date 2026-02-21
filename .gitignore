@@ -4,3 +4,5 @@ assets/db
 src/brokers/test_*
 config/*
 venv/*
+src/brokers/teltonika_fmt887_broker.py
+src/helpers/teltonika_codec8ext/
