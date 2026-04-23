@@ -152,4 +152,18 @@ MongoDBのホストURLを設定します。
 ### KRAKENB_WEBSOCKET_URL
 Websocket ServerのURLを設定します。
 
+# AIコーディングツールを使ったカスタムブローカー開発
+
+Kraken Brokerには、[Claude Code](https://claude.ai/code)、Cursor、GitHub CopilotなどのAIコーディングツールと一緒に使うためのガイドファイル [`AGENTS.md`](./AGENTS.md) が含まれています。このファイルをプロジェクトに置いておくことで、AIアシスタントがKraken Brokerのアーキテクチャ・規約・ベストプラクティスを理解し、カスタムブローカーの実装をより正確にサポートしてくれます。
+
+`AGENTS.md` は以下の内容をカバーしています：
+
+- アーキテクチャの概要とgRPCメッセージ構造
+- カスタムブローカーの開発手順（クラス作成・BrokerManager登録・環境変数）
+- 実装パターンとよくあるシナリオ
+- スケーリングのガイドラインとベストプラクティス
+- トラブルシューティング
+
+AIコーディングツールで新しいブローカーを実装する際は、`AGENTS.md` をプロジェクトと一緒に開き、AIにブローカーの実装を依頼するだけです。AIはこのガイドに記載された規約に従って適切なコードを生成します。
+
 # Customising Broker

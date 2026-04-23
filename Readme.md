@@ -154,5 +154,19 @@ The [Websocket adapter](https://github.com/bathtimefish/kraken_broker_python/blo
 ### KRAKENB_WEBSOCKET_URL
 Set the Websocket Server URL.
 
+# Developing Custom Brokers with AI Coding Tools
+
+Kraken Broker includes [`AGENTS.md`](./AGENTS.md), a guide designed for use with AI coding tools such as [Claude Code](https://claude.ai/code), Cursor, and GitHub Copilot. By placing this file in your project, AI assistants can understand the architecture, conventions, and best practices of Kraken Broker and help you implement custom brokers more accurately.
+
+`AGENTS.md` covers the following topics:
+
+- Architecture overview and gRPC message structure
+- Custom broker development steps (class creation, BrokerManager registration, environment variables)
+- Implementation patterns and common scenarios
+- Scaling guidelines and best practices
+- Troubleshooting tips
+
+When starting a new broker with an AI coding tool, simply open `AGENTS.md` alongside your project and ask the AI to implement a broker. The AI will follow the conventions described in this guide and generate appropriate code.
+
 # Customizing Broker
 WIP
