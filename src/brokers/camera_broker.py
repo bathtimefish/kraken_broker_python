@@ -6,9 +6,6 @@ import os
 import time
 from typing import Any, Optional
 
-import numpy as np  # type: ignore
-from PIL import Image  # type: ignore
-
 from lib import kraken_pb2
 from lib.broker import Broker
 # from adapters.slack import SlackAdapter
@@ -79,25 +76,38 @@ class CameraBroker(Broker):
             return None
         return metadata
 
+    # JPEG の先頭（SOI マーカー）と末尾（EOI マーカー）
+    JPEG_START = b"\xff\xd8\xff"
+    JPEG_END = b"\xff\xd9"
+
     def save_img(self, payload, metadata, output_dir="images"):
         """
-        受信したRGBバイナリストリームをJPEGファイルとして保存
-      
+        受信した JPEG をそのままファイルとして保存する
+        （kraken_collector 3.0.0 以降、camera の payload は JPEG。2.x までは無圧縮の RGB24 だった）
+
         Args:
-            payload (bytes): RGB画像のバイナリデータ
-            metadata_json (str): メタデータJSON文字列
+            payload (bytes): JPEG のバイト列
+            metadata (dict): メタデータ（camera_name, width, height）
             output_dir (str): 保存先ディレクトリ
-      
+
         Returns:
-            str: 保存されたファイルのパス
+            str: 保存されたファイルのパス（JPEG でなければ None）
         """
         try:
-            # メタデータからwidth/heightを取得
-            width = metadata.get('width', 640)
-            height = metadata.get('height', 480)
+            width = metadata.get('width')
+            height = metadata.get('height')
             camera_name = metadata.get('camera_name', 'unknown')
 
             logger.info(f"Processing image from {camera_name}: {width}x{height}")
+
+            if not payload.startswith(self.JPEG_START):
+                logger.error(
+                    "The camera payload is not JPEG; kraken_collector 3.0.0 or later sends JPEG "
+                    f"({len(payload)} bytes)"
+                )
+                return None
+            if not payload.rstrip(b"\x00").endswith(self.JPEG_END):
+                logger.warning("The JPEG may be cut off (no end marker)")
 
             # 出力ディレクトリの作成
             os.makedirs(output_dir, exist_ok=True)
@@ -107,31 +117,10 @@ class CameraBroker(Broker):
             filename = f"{timestamp}.jpg"
             filepath = os.path.join(output_dir, filename)
 
-            # RGBバイナリデータをnumpy配列に変換
-            rgb_array = np.frombuffer(payload, dtype=np.uint8)
+            with open(filepath, "wb") as f:
+                f.write(payload)
 
-            # メタデータの解像度でリシェイプ
-            expected_size = width * height * 3
-            if len(rgb_array) != expected_size:
-                logger.warning(f"Size mismatch: expected {expected_size}, got {len(rgb_array)}")
-                # データサイズに合わせて調整
-                actual_pixels = len(rgb_array) // 3
-                if actual_pixels < width * height:
-                    # データが不足している場合
-                    logger.error(f"Insufficient data: {actual_pixels} < {width * height}")
-                    return None
-
-            # 配列をリシェイプ
-            rgb_array = rgb_array[:expected_size]  # 余分なデータをカット
-            rgb_array = rgb_array.reshape((height, width, 3))
-
-            # PIL Imageオブジェクトを作成
-            image = Image.fromarray(rgb_array, 'RGB')
-
-            # JPEGとして保存
-            image.save(filepath, 'JPEG', quality=85)
-
-            logger.info(f"Image saved: {filepath} ({width}x{height})")
+            logger.info(f"Image saved: {filepath} ({width}x{height}, {len(payload)} bytes)")
             return filepath
 
         except Exception as e:

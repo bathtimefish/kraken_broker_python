@@ -691,22 +691,21 @@ class ConditionalBroker(Broker):
 
 ```python
 # src/brokers/camera_broker.py:19
-import numpy as np
-from PIL import Image
-
 class CameraBroker(Broker):
     async def on(self, request, response):
         metadata = json.loads(request.metadata)
-        width = metadata.get('width', 640)
-        height = metadata.get('height', 480)
+        width = metadata.get('width')
+        height = metadata.get('height')
 
-        # Convert RGB binary data to numpy array
-        rgb_array = np.frombuffer(request.payload, dtype=np.uint8)
-        rgb_array = rgb_array.reshape((height, width, 3))
+        # request.payload is JPEG bytes (kraken_collector 3.0.0+; 2.x sent raw RGB24)
+        # content_type is "image/jpeg"; metadata has camera_name, width and height
+        if not request.payload.startswith(b"\xff\xd8\xff"):
+            return None  # not JPEG
 
-        # Save as PIL Image
-        image = Image.fromarray(rgb_array, 'RGB')
-        image.save("output.jpg", 'JPEG', quality=85)
+        # Save as is (to edit the image, open it with Pillow:
+        # Image.open(io.BytesIO(request.payload)))
+        with open("output.jpg", "wb") as f:
+            f.write(request.payload)
 
         return self.build_response_message(
             collector_name=request.collector_name,
