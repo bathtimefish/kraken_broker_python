@@ -14,7 +14,7 @@ class ConfigManager:
             "KRAKENB_REDIS_HOST",
             "KRAKENB_REDIS_PORT",
             "KRAKENB_REDIS_DB",
-            "KRAKENB_REIDS_USER",
+            "KRAKENB_REDIS_USER",
             "KRAKENB_REDIS_PASSWORD",
             "KRAKENB_MONGODB_HOST",
             "KRAKENB_MONGODB_USER",
